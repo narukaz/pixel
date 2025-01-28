@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Maker</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/7745a56edc.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="layout">
+        <div class="hidden" id="toolbar">
+            <div class="toolbar-icons" id="brush">
+                <i class="fa-solid fa-brush"></i>
+            </div>
+            <div class="toolbar-icons" id="fill">
+                <i class="fa-solid fa-fill-drip"></i>
+            </div>
+            <div class="toolbar-icons" id="clear">
+                <i class="fa-solid fa-eraser"></i>
+            </div>
+            <div class="toolbar-icons" id="shaped">
+                <i class="fa-solid fa-shapes"></i>
+            </div>
+            <div class="toolbar-icons" id="save">
+                <i class="fa-solid fa-floppy-disk"></i>
+            </div>
+        </div>
+        <div class="dialog" id="dialog">
+            <div class="slider-wrapper">
+            <div class="slider">
+                <label for="width-slider">Grid Width</label>
+                <input id="width-slider" type="range" min="5" max="100"/>
+                <input class="in-out" id="width" />
+            </div>
+
+            <div class="slider">
+                <label for="height-slider">Grid Height</label>
+                <input id="height-slider" type="range" min="5" max="100"/>
+                <input class="in-out" id="height" />
+            </div>
+
+            <div class="slider">
+                <label for="color-picker">BG Color</label>
+                <input id="color-picker" type="color"/>
+            </div>
+
+            </div>
+            <div class="create-button" id="create-button">
+                <button >Create-Grid</button>
+            </div>
+            
+
+        </div>
+        <div class="hidden" id="grid_detail">
+            <p>grid details</p>
+            <div class="grid-data">
+                <span id="width-data" class="grid-detail">""</span>
+                <span class="grid-detail">X</span>
+                <span id="height-data" class="grid-detail">""</span>
+                
+            </div>
+
+        </div>
+        <div class="canvas" id="canvas">
+        </div>
+    </div>
+       
+</body>
+<script src="script.js"></script>
+</html>
