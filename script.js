@@ -75,7 +75,10 @@ create_button.addEventListener("click", () => {
   canvas.style.gridTemplateRows = `repeat(${grid_height.value},0fr)`;
   canvas.style.margin = "auto auto";
 
-  for (let i = 0; i < grid_height.value; i++) {
+
+
+
+  for (let i = 0; i < grid_height.value; i++) {//canvas Creation
     for (let j = 0; j < grid_width.value; j++) {
       let element = document.createElement("div");
       element.style.width = "50px";
@@ -83,13 +86,7 @@ create_button.addEventListener("click", () => {
       element.style.backgroundColor = `${color_input.value}`;
       element.style.border = "0.1px solid black";
       element.style.cursor = "pointer";
-      element.setAttribute("id", `ele${(i, j)}`);
-
-
-
-
-
-      
+      element.setAttribute("id", `ele${i}${j}`);
       canvas.appendChild(element);
     }
   }
@@ -101,27 +98,83 @@ let shapeTool = false
 let saveTool = false
 
 function resetTool(){
-let paintTool =false
-let fillTool = false
-let eraseTool = false
-let shapeTool = false
-let saveTool = false
+ paintTool =false
+ fillTool = false
+ eraseTool = false
+ shapeTool = false
+ saveTool = false
+return 1
 }
 
+//paint tool
 canvas.addEventListener("click", (e)=>{
     let target = document.elementFromPoint(e.clientX,e.clientY)
     let selectedColor = clr_elem.value
-    if(!paintTool && !eraseTool){
-        return
-    }
-    else if(paintTool && !eraseTool){
-        target.style.backgroundColor = 'white'
+
+    if(paintTool && !eraseTool){
+        target.style.backgroundColor = selectedColor
     }
     else if(eraseTool && !paintTool ){
         target.style.backgroundColor = 'white'
+    }else if(fillTool){
+        let child = document.getElementById('canvas').children
+        let colorStructure = new Array()
+        count=0
+
+        for(let i=0; i<grid_height.value ;i++){
+                colorStructure.push([])
+                for(let j=0;j<grid_width.value;j++){
+                        colorStructure[i][j]=child[count].style.backgroundColor
+                        count++
+                }
+        }
+        console.log(colorStructure)
+        let csh = Number(grid_height.value)
+        let csw = Number(grid_width.value)
+        let idLength=target.id.length
+        let baseColor = target.style.backgroundColor
+        let y = target.id[idLength-2]
+        let x = target.id[idLength-1]
+
+        
+        function recursiveFiller(y,x,colorStructure,color,baseColor){
+            if(colorStructure[y][x] !== baseColor){
+                    return
+                    }
+                    colorStructure[y][x]= color
+
+                    if (y - 1 >= 0 && colorStructure[y - 1]?.[x] === baseColor) {
+                        recursiveFiller(y - 1, x, colorStructure, color, baseColor);
+                    }
+
+                    if (y + 1 < colorStructure.length && colorStructure[y + 1]?.[x] === baseColor) {
+                        recursiveFiller(y + 1, x, colorStructure, color, baseColor);
+                    }
+
+                    if (x - 1 >= 0 && colorStructure[y]?.[x - 1] === baseColor) {
+                        recursiveFiller(y, x - 1, colorStructure, color, baseColor);
+                    }
+
+                    if (x + 1 < colorStructure[0].length && colorStructure[y]?.[x + 1] === baseColor) {
+                        recursiveFiller(y, x + 1, colorStructure, color, baseColor);
+                    }
+            
+        }
+        recursiveFiller(y,x,colorStructure,selectedColor,baseColor)
+        for(let i =0; i<csh;i++){
+            for(j=0; j<csw;j++){
+                let fillElement = document.getElementById(`ele${i}${j}`)
+                fillElement.style.backgroundColor = colorStructure[i][j]
+
+            }
+        }
     }
-    console.log("paintTool",paintTool,"eraseTool",eraseTool,selectedColor)
+
   })
+ 
+//fill tool
+
+
 
 console.log(paintTool,fillTool,eraseTool,saveTool,shapeTool)
     
@@ -152,7 +205,7 @@ function resetButtons() {
 
 document.addEventListener("keyup", (event) => {
   let key_pressed = event.key;
-  if (key_pressed == "b" || key_pressed == 1) {
+  if (key_pressed == "b" ) {
     resetButtons();
     resetTool()
     paintTool = true
@@ -160,7 +213,7 @@ document.addEventListener("keyup", (event) => {
     return;
   }
 
-  if (key_pressed == "f" || key_pressed == 2) {
+  if (key_pressed == "f" ) {
       resetButtons();
       resetTool()
       fillTool = true
@@ -168,7 +221,7 @@ document.addEventListener("keyup", (event) => {
       return
   }
 
-  if (key_pressed == "e" || key_pressed == 3) {
+  if (key_pressed == "e" ) {
       resetButtons();
       resetTool()
       eraseTool = true
@@ -176,7 +229,7 @@ document.addEventListener("keyup", (event) => {
       return;
   }
 
-  if (key_pressed == "s" || key_pressed == 4) {
+  if (key_pressed == "s" ) {
       resetButtons();
       resetTool()
       shapeTool = true
