@@ -135,32 +135,28 @@ canvas.addEventListener("click", (e)=>{
         let baseColor = target.style.backgroundColor
         let y = target.id[idLength-2]
         let x = target.id[idLength-1]
-
         
-        function recursiveFiller(y,x,colorStructure,color,baseColor){
-            if(colorStructure[y][x] !== baseColor){
-                    return
-                    }
-                    colorStructure[y][x]= color
-
-                    if (y - 1 >= 0 && colorStructure[y - 1]?.[x] === baseColor) {
-                        recursiveFiller(y - 1, x, colorStructure, color, baseColor);
-                    }
-
-                    if (y + 1 < colorStructure.length && colorStructure[y + 1]?.[x] === baseColor) {
-                        recursiveFiller(y + 1, x, colorStructure, color, baseColor);
-                    }
-
-                    if (x - 1 >= 0 && colorStructure[y]?.[x - 1] === baseColor) {
-                        recursiveFiller(y, x - 1, colorStructure, color, baseColor);
-                    }
-
-                    if (x + 1 < colorStructure[0].length && colorStructure[y]?.[x + 1] === baseColor) {
-                        recursiveFiller(y, x + 1, colorStructure, color, baseColor);
-                    }
+        console.log(baseColor,selectedColor)
+        function recursiveFiller(y, x, colorStructure, newColor, originalColor) {
+            // 1. Boundary Check and Base Case (Crucial!)
+            console.log("On value -> ", y,x)
+            if (y < 0 || y >= colorStructure.length || x < 0 || x >= colorStructure[0].length || colorStructure[y][x] !== originalColor) {
+              return; // Stop if out of bounds or wrong color
+            }
+          
+            // 2. Fill the current cell (NOW that we know it's valid)
+            colorStructure[y][x] = newColor;
+          
             
-        }
-        recursiveFiller(y,x,colorStructure,selectedColor,baseColor)
+            recursiveFiller(y - 1, x, colorStructure, newColor, originalColor); // Up
+            recursiveFiller(y + 1, x, colorStructure, newColor, originalColor); // Down
+            recursiveFiller(y, x - 1, colorStructure, newColor, originalColor); // Left
+            recursiveFiller(y, x + 1, colorStructure, newColor, originalColor); // Right
+            return
+          }
+
+          recursiveFiller(Number(y),Number(x),colorStructure,selectedColor,baseColor)
+
         for(let i =0; i<csh;i++){
             for(j=0; j<csw;j++){
                 let fillElement = document.getElementById(`ele${i}${j}`)
