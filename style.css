@@ -24,7 +24,7 @@ background-color: #d3d9dc;
     width: 70px;
     height: auto;
     padding: 12px 12px;
-    z-index: 1;
+    z-index:1;
     position: fixed;
     left: 20px;
     top: 50px;
@@ -68,6 +68,54 @@ background-color: #d3d9dc;
 
     border: 1px solid rgb(0, 0, 0);
 }
+.shape-deactive{
+    left: -200px;
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+    transition: all 0.3 ease-out;
+}
+.shape-active{
+    border: 2px solid rgb(151, 151, 151);
+    opacity: 100;
+    z-index: -1;
+    width: 120px;
+    height: 60px;
+    border-radius: 0px 10px 10px 0px;
+    position: absolute;
+    padding-left: 15px;
+    padding-right: 50px;
+    top: 177px;
+    left: 60px;
+    background-color: white;
+    font: black;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 30px;
+    gap: 20px;
+    transition: all 0.3 ease-in;
+}
+
+.fa-circle ,.fa-square{
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.fa-circle-selected,.fa-square-selected{
+    transition: all 0.3s ease;
+    color: blue;
+
+}
+.fa-circle:hover{
+    color: blue;
+    transform: scale(1.2);
+    
+}
+.fa-square:hover{
+    color: blue;
+    transform: rotate(45deg);
+}
+
 
 .dialog{
     width: 600px;
@@ -174,6 +222,7 @@ input[type="color"]:hover {
   .hidden{
         display: none;
   }
+
 
 
   .grid-dialog-detail{

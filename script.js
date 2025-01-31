@@ -4,11 +4,11 @@ let grid_height = document.getElementById("height-slider");
 
 let display_height = document.getElementById("height");
 let display_width = document.getElementById("width");
-let clr_elem = document.getElementById("color-picker-main")
+let clr_elem = document.getElementById("color-picker-main");
 let create_button = document.getElementById("create-button");
 
-let default_height = 10; //default values
-let default_width = 10; //default values
+let default_height = 5; //default values
+let default_width = 5; //default values
 
 grid_width.value = default_width;
 display_width.value = default_width;
@@ -75,10 +75,8 @@ create_button.addEventListener("click", () => {
   canvas.style.gridTemplateRows = `repeat(${grid_height.value},0fr)`;
   canvas.style.margin = "auto auto";
 
-
-
-
-  for (let i = 0; i < grid_height.value; i++) {//canvas Creation
+  for (let i = 0; i < grid_height.value; i++) {
+    //canvas Creation
     for (let j = 0; j < grid_width.value; j++) {
       let element = document.createElement("div");
       element.style.width = "50px";
@@ -86,102 +84,108 @@ create_button.addEventListener("click", () => {
       element.style.backgroundColor = `${color_input.value}`;
       element.style.border = "0.1px solid black";
       element.style.cursor = "pointer";
-      element.setAttribute("id", `ele${i}${j}`);
+      element.setAttribute("id", `${i},${j}`);
       canvas.appendChild(element);
     }
   }
 });
-let paintTool =false
-let fillTool = false
-let eraseTool = false
-let shapeTool = false
-let saveTool = false
+let paintTool = false;
+let fillTool = false;
+let eraseTool = false;
+let shapeTool = false;
+let saveTool = false;
 
-function resetTool(){
- paintTool =false
- fillTool = false
- eraseTool = false
- shapeTool = false
- saveTool = false
-return 1
+function resetTool() {
+  paintTool = false;
+  fillTool = false;
+  eraseTool = false;
+  shapeTool = false;
+  saveTool = false;
+  return 1;
 }
 
 //paint tool
-canvas.addEventListener("click", (e)=>{
-    let target = document.elementFromPoint(e.clientX,e.clientY)
-    let selectedColor = clr_elem.value
-
-    if(paintTool && !eraseTool){
-        target.style.backgroundColor = selectedColor
-    }
-    else if(eraseTool && !paintTool ){
-        target.style.backgroundColor = 'white'
-    }else if(fillTool){
-        let child = document.getElementById('canvas').children
-        let colorStructure = new Array()
-        count=0
-
-        for(let i=0; i<grid_height.value ;i++){
-                colorStructure.push([])
-                for(let j=0;j<grid_width.value;j++){
-                        colorStructure[i][j]=child[count].style.backgroundColor
-                        count++
-                }
-        }
-        console.log(colorStructure)
-        let csh = Number(grid_height.value)
-        let csw = Number(grid_width.value)
-        let idLength=target.id.length
-        let baseColor = target.style.backgroundColor
-        let y = target.id[idLength-2]
-        let x = target.id[idLength-1]
-        
-        console.log(baseColor,selectedColor)
-        function recursiveFiller(y, x, colorStructure, newColor, originalColor) {
-            // 1. Boundary Check and Base Case (Crucial!)
-            console.log("On value -> ", y,x)
-            if (y < 0 || y >= colorStructure.length || x < 0 || x >= colorStructure[0].length || colorStructure[y][x] !== originalColor) {
-              return; // Stop if out of bounds or wrong color
-            }
-          
-            // 2. Fill the current cell (NOW that we know it's valid)
-            colorStructure[y][x] = newColor;
-          
-            
-            recursiveFiller(y - 1, x, colorStructure, newColor, originalColor); // Up
-            recursiveFiller(y + 1, x, colorStructure, newColor, originalColor); // Down
-            recursiveFiller(y, x - 1, colorStructure, newColor, originalColor); // Left
-            recursiveFiller(y, x + 1, colorStructure, newColor, originalColor); // Right
-            return
-          }
-
-          recursiveFiller(Number(y),Number(x),colorStructure,selectedColor,baseColor)
-
-        for(let i =0; i<csh;i++){
-            for(j=0; j<csw;j++){
-                let fillElement = document.getElementById(`ele${i}${j}`)
-                fillElement.style.backgroundColor = colorStructure[i][j]
-
-            }
-        }
-    }
-
-  })
- 
-//fill tool
-
-
-
-console.log(paintTool,fillTool,eraseTool,saveTool,shapeTool)
-    
-
-//handling tollbar events
-
 let brush = document.getElementById("brush");
 let fill = document.getElementById("fill");
 let erase = document.getElementById("erase");
 let shaped = document.getElementById("shaped");
 let save = document.getElementById("save");
+let shapeTool_shapes = document.getElementById("shapetool_shapes")
+
+
+canvas.addEventListener("click", (e) => {
+  let target = document.elementFromPoint(e.clientX, e.clientY);
+  let selectedColor = clr_elem.value;
+
+  if (paintTool && !eraseTool) {
+    target.style.backgroundColor = selectedColor;
+  } else if (eraseTool && !paintTool) {
+    target.style.backgroundColor = "white";
+  } else if (fillTool) {
+    let child = document.getElementById("canvas").children;
+    let colorStructure = new Array();
+    count = 0;
+
+    for (let i = 0; i < grid_height.value; i++) {
+      colorStructure.push([]);
+      for (let j = 0; j < grid_width.value; j++) {
+        colorStructure[i][j] = child[count].style.backgroundColor;
+        count++;
+      }
+    }
+    console.log(colorStructure);
+    let csh = Number(grid_height.value);
+    let csw = Number(grid_width.value);
+    let baseColor = target.style.backgroundColor;
+    let [y,x] = target.id.split(",")
+    console.log(baseColor, selectedColor);
+    function recursiveFiller(y, x, colorStructure, newColor, originalColor) {
+    
+      if (
+        y < 0 ||
+        y >= colorStructure.length ||
+        x < 0 ||
+        x >= colorStructure[0].length ||
+        colorStructure[y][x] !== originalColor
+      ) {
+        return; // Stop if out of bounds or wrong color
+      }
+
+      // 2. Fill the current cell (NOW that we know it's valid)
+      colorStructure[y][x] = newColor;
+      recursiveFiller(y - 1, x, colorStructure, newColor, originalColor); // Up
+      recursiveFiller(y + 1, x, colorStructure, newColor, originalColor); // Down
+      recursiveFiller(y, x - 1, colorStructure, newColor, originalColor); // Left
+      recursiveFiller(y, x + 1, colorStructure, newColor, originalColor); // Right
+
+      return;
+    }
+    console.log(target.id)
+    recursiveFiller(
+      Number(y),
+      Number(x),
+      colorStructure,
+      selectedColor,
+      baseColor
+    );
+
+    for (let i = 0; i < csh; i++) {
+      for (j = 0; j < csw; j++) {
+        let fillElement = document.getElementById(`${i},${j}`);
+        fillElement.style.backgroundColor = colorStructure[i][j];
+      }
+    }
+  }
+  }
+);
+
+//fill tool
+
+console.log(paintTool, fillTool, eraseTool, saveTool, shapeTool);
+
+//handling tollbar events
+
+
 
 function resetButtons() {
   brush.classList.remove("toolbar-icons-selected");
@@ -189,7 +193,8 @@ function resetButtons() {
   erase.classList.remove("toolbar-icons-selected");
   shaped.classList.remove("toolbar-icons-selected");
   save.classList.remove("toolbar-icons-selected");
-
+  shapeTool_shapes.classList.remove("shape-active")
+  shapeTool_shapes.classList.add("shape-deactive")
   brush.classList.add("toolbar-icons");
   fill.classList.add("toolbar-icons");
   erase.classList.add("toolbar-icons");
@@ -197,77 +202,111 @@ function resetButtons() {
   save.classList.add("toolbar-icons");
 }
 
-
-
 document.addEventListener("keyup", (event) => {
   let key_pressed = event.key;
-  if (key_pressed == "b" ) {
+  if (key_pressed == "b") {
     resetButtons();
-    resetTool()
-    paintTool = true
+    resetTool();
+    paintTool = true;
     brush.classList.add("toolbar-icons-selected");
     return;
   }
 
-  if (key_pressed == "f" ) {
-      resetButtons();
-      resetTool()
-      fillTool = true
-      fill.classList.add("toolbar-icons-selected");
-      return
+  if (key_pressed == "f") {
+    resetButtons();
+    resetTool();
+    fillTool = true;
+    fill.classList.add("toolbar-icons-selected");
+    return;
   }
 
-  if (key_pressed == "e" ) {
-      resetButtons();
-      resetTool()
-      eraseTool = true
-      erase.classList.add("toolbar-icons-selected");
-      return;
+  if (key_pressed == "e") {
+    resetButtons();
+    resetTool();
+    eraseTool = true;
+    erase.classList.add("toolbar-icons-selected");
+    return;
   }
 
-  if (key_pressed == "s" ) {
-      resetButtons();
-      resetTool()
-      shapeTool = true
-      shaped.classList.add("toolbar-icons-selected");
-      return;
+  if (key_pressed == "s") {
+    resetButtons();
+    resetTool();
+    shapeTool = true;
+    shaped.classList.add("toolbar-icons-selected");
+    return;
   }
 });
 
 brush.addEventListener("click", () => {
   resetButtons();
-  resetTool()
+  resetTool();
   brush.classList.add("toolbar-icons-selected");
-  paintTool =true
+  paintTool = true;
 });
 
 fill.addEventListener("click", () => {
   resetButtons();
   fill.classList.add("toolbar-icons-selected");
-  resetTool()
-  fillTool =true
+  resetTool();
+  fillTool = true;
 });
 
 erase.addEventListener("click", () => {
   resetButtons();
   erase.classList.add("toolbar-icons-selected");
-  resetTool()
-  eraseTool =true
-  
+  resetTool();
+  eraseTool = true;
 });
 
 shaped.addEventListener("click", () => {
   resetButtons();
+  shapeTool_shapes.classList.add("shape-active")
   shaped.classList.add("toolbar-icons-selected");
-  resetTool()
-  shapeTool =true
+  resetTool();
+  shapeTool = true;
 });
+
+let shape_circle = document.getElementById("shape_circle")
+let shape_square = document.getElementById("shape_square")
+let selected_shape = ""
+
+shape_circle.addEventListener('click',(e)=>{
+    if(selected_shape ="square" || !selected_shape){
+        resetButtons();
+        shaped.classList.add("toolbar-icons-selected");
+        shape_circle.classList.add("fa-circle-selected")
+        shape_square.classList.remove('fa-square-selected')
+
+        shapeTool_shapes.classList.remove("shape-active")
+        shapeTool_shapes.classList.add("shape-deactive")
+        selected_shape = 'circle'
+    }
+        
+})
+
+shape_square.addEventListener('click',(e)=>{
+    resetButtons();
+    shaped.classList.add("toolbar-icons-selected");
+    shape_square.classList.add("fa-square-selected")
+    shape_circle.classList.remove('fa-circle-selected')
+
+    shapeTool_shapes.classList.remove("shape-active")
+    shapeTool_shapes.classList.add("shape-deactive")
+    selected_shape = 'square'
+})
+
+
+//shape event handler
+
+
+
+
 
 save.addEventListener("click", () => {
   resetButtons();
   save.classList.add("toolbar-icons-selected");
-  resetTool()
-  saveTool =true
+  resetTool();
+  saveTool = true;
 });
 
 //canvas
