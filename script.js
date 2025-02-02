@@ -112,10 +112,57 @@ let shaped = document.getElementById("shaped");
 let save = document.getElementById("save");
 let shapeTool_shapes = document.getElementById("shapetool_shapes")
 
+let canvas = document.getElementById("canvas");
+
+
+function findCircle(center,pointer){
+    for(let i=center[0]-pointer[0]; i<center[0]+pointer; i++){
+        console.log(i)
+    }
+    return
+}
+
+canvas.addEventListener("mouseover",(e)=>{
+   
+    if(!shapeTool)return
+
+    if(shapeTool){
+    let [y,x] = document.elementFromPoint(e.clientX,e.clientY).id.split(',').map(Number);
+    let [middleY,MiddleX] = [Math.floor(grid_height.value/2), Math.floor(grid_width.value/2)]
+        console.log(middleY,MiddleX)
+
+        let mySquare =new Array(Math.abs(middleY-y))
+        for(let k = 0;k<=middleY-y;k++){
+                mySquare.push([])
+        }
+        console.log(mySquare)
+        for(let i=middleY-y ; i<=middleY+middleY-y;i++){
+            for(let j=MiddleX-2; i<=MiddleX+2;j++){
+                if(i>=middleY+2 || i<=middleY-2 || j<=MiddleX-2 || j>= MiddleX+2){
+                    mySquare[i][j] = 1
+                }else{
+                    mySquare[i][j]=0
+                }
+            } 
+        }
+        console.log(mySquare)
+        
+
+    // if(Math.abs(MiddleX-x)>2){
+    //     findCircle([middleY,MiddleX],[y,x])
+    // }
+        
+    
+    }
+    
+
+})
+
 
 canvas.addEventListener("click", (e) => {
   let target = document.elementFromPoint(e.clientX, e.clientY);
   let selectedColor = clr_elem.value;
+
 
   if (paintTool && !eraseTool) {
     target.style.backgroundColor = selectedColor;
@@ -294,6 +341,7 @@ shape_square.addEventListener('click',(e)=>{
     shapeTool_shapes.classList.add("shape-deactive")
     selected_shape = 'square'
 })
+
 
 
 //shape event handler
