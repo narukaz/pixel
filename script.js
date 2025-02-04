@@ -83,7 +83,7 @@ create_button.addEventListener("click", () => {
       element.style.height = "50px";
       element.style.backgroundColor = `${color_input.value}`;
       element.style.border = "0.1px solid black";
-      element.style.cursor = "pointer";
+      element.style.cursor = "crosshair";
       element.setAttribute("id", `${i},${j}`);
       canvas.appendChild(element);
     }
@@ -110,59 +110,79 @@ let fill = document.getElementById("fill");
 let erase = document.getElementById("erase");
 let shaped = document.getElementById("shaped");
 let save = document.getElementById("save");
-let shapeTool_shapes = document.getElementById("shapetool_shapes")
+let shapeTool_shapes = document.getElementById("shapetool_shapes");
 
 let canvas = document.getElementById("canvas");
 
+// function findCircle(center,pointer){
+//     for(let i=center[0]-pointer[0]; i<center[0]+pointer; i++){
+//         console.log(i)
+//     }
+//     return
+// }
 
-function findCircle(center,pointer){
-    for(let i=center[0]-pointer[0]; i<center[0]+pointer; i++){
-        console.log(i)
-    }
-    return
-}
+let startX = 0;
+let startY = 0;
+let endX = 0;
+let endY = 0;
+canvas.addEventListener("mouseover", (e) => {
+  if (shapeTool) {
+    canvas.style.cursor = "crosshair";
+  }
+});
 
-canvas.addEventListener("mouseover",(e)=>{
-   
-    if(!shapeTool)return
+canvas.addEventListener("mousedown", (e) => {
+  if (!shapeTool) return;
+  let element = document.elementFromPoint(e.clientX, e.clientY);
+  if (element.id == "canvas") return;
+  [startY, startX] = element.id.split(",").map(Number);
+}); //first coordinate
+canvas.addEventListener("drag", (e) => {
+  e.preventDefault();
+  if (!shapeTool) return;
+});
 
-    if(shapeTool){
-    let [y,x] = document.elementFromPoint(e.clientX,e.clientY).id.split(',').map(Number);
-    let [middleY,MiddleX] = [Math.floor(grid_height.value/2), Math.floor(grid_width.value/2)]
-        console.log(middleY,MiddleX)
 
-        let mySquare =new Array(Math.abs(middleY-y))
-        for(let k = 0;k<=middleY-y;k++){
-                mySquare.push([])
-        }
-        console.log(mySquare)
-        for(let i=middleY-y ; i<=middleY+middleY-y;i++){
-            for(let j=MiddleX-2; i<=MiddleX+2;j++){
-                if(i>=middleY+2 || i<=middleY-2 || j<=MiddleX-2 || j>= MiddleX+2){
-                    mySquare[i][j] = 1
-                }else{
-                    mySquare[i][j]=0
-                }
-            } 
-        }
-        console.log(mySquare)
-        
 
-    // if(Math.abs(MiddleX-x)>2){
-    //     findCircle([middleY,MiddleX],[y,x])
-    // }
-        
+canvas.addEventListener("mouseup", (e) => {
+  if (!shapeTool) return;
+  let element = document.elementFromPoint(e.clientX, e.clientY);
+  if (element.id == "canvas") return;
+  [endY, endX] = element.id.split(",").map(Number);
+  let selectedColor = clr_elem.value;
+  //marking top strip
+  for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
+    let stripTop = document.getElementById(`${Math.min(startY,endY)},${i}`)
+    stripTop.style.backgroundColor = selectedColor
     
-    }
-    
+  }
 
-})
+  //making the bottom strip
+  for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
+    let stripBottom = document.getElementById(`${Math.max(startY,endY)},${i}`)
+    stripBottom.style.backgroundColor = selectedColor
+  }
+
+  for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
+    let stripLeft = document.getElementById(`${j},${Math.min(startX,endX)}`)
+    stripLeft.style.backgroundColor= selectedColor
+  }
+
+  for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
+    let stripLeft = document.getElementById(`${j},${Math.max(startX,endX)}`)
+    stripLeft.style.backgroundColor= selectedColor
+  }
+
+});
 
 
+
+
+
+//second coordinate
 canvas.addEventListener("click", (e) => {
   let target = document.elementFromPoint(e.clientX, e.clientY);
   let selectedColor = clr_elem.value;
-
 
   if (paintTool && !eraseTool) {
     target.style.backgroundColor = selectedColor;
@@ -184,10 +204,9 @@ canvas.addEventListener("click", (e) => {
     let csh = Number(grid_height.value);
     let csw = Number(grid_width.value);
     let baseColor = target.style.backgroundColor;
-    let [y,x] = target.id.split(",")
+    let [y, x] = target.id.split(",");
     console.log(baseColor, selectedColor);
     function recursiveFiller(y, x, colorStructure, newColor, originalColor) {
-    
       if (
         y < 0 ||
         y >= colorStructure.length ||
@@ -207,7 +226,7 @@ canvas.addEventListener("click", (e) => {
 
       return;
     }
-    console.log(target.id)
+    console.log(target.id);
     recursiveFiller(
       Number(y),
       Number(x),
@@ -223,8 +242,7 @@ canvas.addEventListener("click", (e) => {
       }
     }
   }
-  }
-);
+});
 
 //fill tool
 
@@ -232,16 +250,14 @@ console.log(paintTool, fillTool, eraseTool, saveTool, shapeTool);
 
 //handling tollbar events
 
-
-
 function resetButtons() {
   brush.classList.remove("toolbar-icons-selected");
   fill.classList.remove("toolbar-icons-selected");
   erase.classList.remove("toolbar-icons-selected");
   shaped.classList.remove("toolbar-icons-selected");
   save.classList.remove("toolbar-icons-selected");
-  shapeTool_shapes.classList.remove("shape-active")
-  shapeTool_shapes.classList.add("shape-deactive")
+  shapeTool_shapes.classList.remove("shape-active");
+  shapeTool_shapes.classList.add("shape-deactive");
   brush.classList.add("toolbar-icons");
   fill.classList.add("toolbar-icons");
   erase.classList.add("toolbar-icons");
@@ -307,48 +323,41 @@ erase.addEventListener("click", () => {
 
 shaped.addEventListener("click", () => {
   resetButtons();
-  shapeTool_shapes.classList.add("shape-active")
+  shapeTool_shapes.classList.add("shape-active");
   shaped.classList.add("toolbar-icons-selected");
   resetTool();
   shapeTool = true;
 });
 
-let shape_circle = document.getElementById("shape_circle")
-let shape_square = document.getElementById("shape_square")
-let selected_shape = ""
+let shape_circle = document.getElementById("shape_circle");
+let shape_square = document.getElementById("shape_square");
+let selected_shape = "";
 
-shape_circle.addEventListener('click',(e)=>{
-    if(selected_shape ="square" || !selected_shape){
-        resetButtons();
-        shaped.classList.add("toolbar-icons-selected");
-        shape_circle.classList.add("fa-circle-selected")
-        shape_square.classList.remove('fa-square-selected')
-
-        shapeTool_shapes.classList.remove("shape-active")
-        shapeTool_shapes.classList.add("shape-deactive")
-        selected_shape = 'circle'
-    }
-        
-})
-
-shape_square.addEventListener('click',(e)=>{
+shape_circle.addEventListener("click", (e) => {
+  if ((selected_shape = "square" || !selected_shape)) {
     resetButtons();
     shaped.classList.add("toolbar-icons-selected");
-    shape_square.classList.add("fa-square-selected")
-    shape_circle.classList.remove('fa-circle-selected')
+    shape_circle.classList.add("fa-circle-selected");
+    shape_square.classList.remove("fa-square-selected");
 
-    shapeTool_shapes.classList.remove("shape-active")
-    shapeTool_shapes.classList.add("shape-deactive")
-    selected_shape = 'square'
-})
+    shapeTool_shapes.classList.remove("shape-active");
+    shapeTool_shapes.classList.add("shape-deactive");
+    selected_shape = "circle";
+  }
+});
 
+shape_square.addEventListener("click", (e) => {
+  resetButtons();
+  shaped.classList.add("toolbar-icons-selected");
+  shape_square.classList.add("fa-square-selected");
+  shape_circle.classList.remove("fa-circle-selected");
 
+  shapeTool_shapes.classList.remove("shape-active");
+  shapeTool_shapes.classList.add("shape-deactive");
+  selected_shape = "square";
+});
 
 //shape event handler
-
-
-
-
 
 save.addEventListener("click", () => {
   resetButtons();
