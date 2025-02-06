@@ -84,6 +84,8 @@ create_button.addEventListener("click", () => {
       element.style.backgroundColor = `${color_input.value}`;
       element.style.border = "0.1px solid black";
       element.style.cursor = "crosshair";
+      element.style.userSelect="none";
+      element.innerText=`${i},${j}`
       element.setAttribute("id", `${i},${j}`);
       canvas.appendChild(element);
     }
@@ -143,43 +145,59 @@ canvas.addEventListener("drag", (e) => {
 });
 
 
+//for square
+// canvas.addEventListener("mouseup", (e) => {
+//   if (!shapeTool) return;
+//   let element = document.elementFromPoint(e.clientX, e.clientY);
+//   if (element.id == "canvas") return;
+//   [endY, endX] = element.id.split(",").map(Number);
+//   let selectedColor = clr_elem.value;
+//   //marking top strip
+//   for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
+//     let stripTop = document.getElementById(`${Math.min(startY,endY)},${i}`)
+//     stripTop.style.backgroundColor = selectedColor
+    
+//   }
 
+//   //making the bottom strip
+//   for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
+//     let stripBottom = document.getElementById(`${Math.max(startY,endY)},${i}`)
+//     stripBottom.style.backgroundColor = selectedColor
+//   }
+
+//   for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
+//     let stripLeft = document.getElementById(`${j},${Math.min(startX,endX)}`)
+//     stripLeft.style.backgroundColor= selectedColor
+//   }
+
+//   for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
+//     let stripLeft = document.getElementById(`${j},${Math.max(startX,endX)}`)
+//     stripLeft.style.backgroundColor= selectedColor
+//   }
+
+// });
+
+
+
+//for circle
 canvas.addEventListener("mouseup", (e) => {
   if (!shapeTool) return;
   let element = document.elementFromPoint(e.clientX, e.clientY);
   if (element.id == "canvas") return;
   [endY, endX] = element.id.split(",").map(Number);
-  let selectedColor = clr_elem.value;
-  //marking top strip
-  for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
-    let stripTop = document.getElementById(`${Math.min(startY,endY)},${i}`)
-    stripTop.style.backgroundColor = selectedColor
-    
-  }
+  let circleVerticalMid = Math.max(endY,startY)+Math.min(endY,startY)
+  let circleHorizontalMid = Math.max(endX,startX)+Math.min(endX,startX)
 
-  //making the bottom strip
-  for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
-    let stripBottom = document.getElementById(`${Math.max(startY,endY)},${i}`)
-    stripBottom.style.backgroundColor = selectedColor
-  }
+  let midVertical =Math.floor((circleVerticalMid+1)/2)
+  let midHorizonal = Math.floor((circleHorizontalMid+1)/2)
 
-  for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
-    let stripLeft = document.getElementById(`${j},${Math.min(startX,endX)}`)
-    stripLeft.style.backgroundColor= selectedColor
-  }
-
-  for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
-    let stripLeft = document.getElementById(`${j},${Math.max(startX,endX)}`)
-    stripLeft.style.backgroundColor= selectedColor
-  }
-
+  console.log('verticalIndex ->',midVertical,'horizontalIndex ->',midHorizonal)
+  console.log("Y axis length ->",Math.max(endY,startY)-Math.min(endY,startY) +1)
+  console.log("X axis length ->",Math.max(endX,startX)-Math.min(endX,startX) +1)
+  let elementRight = document.getElementById(`${midVertical},${Math.min(endX,startX)}`)
+  elementRight.style.backgroundColor='blue'
 });
 
-
-
-
-
-//second coordinate
 canvas.addEventListener("click", (e) => {
   let target = document.elementFromPoint(e.clientX, e.clientY);
   let selectedColor = clr_elem.value;
