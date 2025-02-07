@@ -6,6 +6,7 @@ let display_height = document.getElementById("height");
 let display_width = document.getElementById("width");
 let clr_elem = document.getElementById("color-picker-main");
 let create_button = document.getElementById("create-button");
+let load_previous = document.getElementById("load-previous");
 
 let default_height = 5; //default values
 let default_width = 5; //default values
@@ -21,6 +22,11 @@ let height_data = document.getElementById("height-data");
 width_data.innerText = default_width + "W";
 height_data.innerText = default_height + "H";
 
+//shapes
+
+let circleshape = document.getElementById("shape_circle");
+let squareshape = document.getElementById("shape_square");
+
 grid_height.addEventListener("input", () => {
   display_height.value = grid_height.value;
   height_data.innerText = grid_height.value + "H";
@@ -30,6 +36,7 @@ grid_width.addEventListener("input", () => {
   display_width.value = grid_width.value;
   width_data.innerText = grid_width.value + "W";
 });
+
 
 display_height.addEventListener("input", () => {
   if (display_height.value > 100) {
@@ -42,6 +49,7 @@ display_height.addEventListener("input", () => {
   height_data.innerText = grid_height.value + "H";
 });
 
+
 display_width.addEventListener("input", () => {
   if (display_width.value > 100) {
     display_width.value = 100;
@@ -51,6 +59,50 @@ display_width.addEventListener("input", () => {
   }
   width_data.innerText = grid_width.value + "W";
 });
+let previous_width =0
+let previous_height =0
+
+
+load_previous.addEventListener('click', ()=>{
+  let data = JSON.parse(document.cookie.split('=')[1])
+  previous_height = data.length
+  previous_width=data[0].length
+  const element = document.getElementById("dialog");
+  element.classList.remove("dialog");
+  element.classList.add("hidden");
+
+  const grid_data = document.getElementById("grid_detail");
+  grid_data.classList.remove("hidden");
+  grid_data.classList.add("grid-dialog-detail");
+
+  const toolbar = document.getElementById("toolbar");
+  toolbar.classList.remove("hidden");
+  toolbar.classList.add("toolbar");
+
+  let color_input = document.getElementById("color-picker");
+
+  let canvas = document.getElementById("canvas");
+  canvas.style.display = "grid";
+  
+  canvas.style.gridTemplateColumns = `repeat(${previous_width},0fr)`;
+  canvas.style.gridTemplateRows = `repeat(${previous_height},0fr)`;
+  canvas.style.margin = "auto auto";
+
+    for (let i = 0; i < previous_height; i++) {
+      //canvas Creation
+      for (let j = 0; j < previous_width; j++) {
+        let element = document.createElement("div");
+        element.style.width = "50px";
+        element.style.height = "50px";
+        element.style.backgroundColor = `${data[i][j]}`;
+        element.style.border = "0.1px solid black";
+        element.style.cursor = "crosshair";
+        element.style.userSelect = "none";
+        element.setAttribute("id", `${i},${j}`);
+        canvas.appendChild(element);
+      }
+    }
+})
 
 create_button.addEventListener("click", () => {
   const element = document.getElementById("dialog");
@@ -75,22 +127,23 @@ create_button.addEventListener("click", () => {
   canvas.style.gridTemplateRows = `repeat(${grid_height.value},0fr)`;
   canvas.style.margin = "auto auto";
 
-  for (let i = 0; i < grid_height.value; i++) {
-    //canvas Creation
-    for (let j = 0; j < grid_width.value; j++) {
-      let element = document.createElement("div");
-      element.style.width = "50px";
-      element.style.height = "50px";
-      element.style.backgroundColor = `${color_input.value}`;
-      element.style.border = "0.1px solid black";
-      element.style.cursor = "crosshair";
-      element.style.userSelect="none";
-      element.innerText=`${i},${j}`
-      element.setAttribute("id", `${i},${j}`);
-      canvas.appendChild(element);
+    for (let i = 0; i < grid_height.value; i++) {
+      //canvas Creation
+      for (let j = 0; j < grid_width.value; j++) {
+        let element = document.createElement("div");
+        element.style.width = "50px";
+        element.style.height = "50px";
+        element.style.backgroundColor = `${color_input.value}`;
+        element.style.border = "0.1px solid black";
+        element.style.cursor = "crosshair";
+        element.style.userSelect = "none";
+        element.setAttribute("id", `${i},${j}`);
+        canvas.appendChild(element);
+      }
     }
-  }
+  
 });
+
 let paintTool = false;
 let fillTool = false;
 let eraseTool = false;
@@ -103,9 +156,9 @@ function resetTool() {
   eraseTool = false;
   shapeTool = false;
   saveTool = false;
+  selected_shape =''
   return 1;
 }
-
 //paint tool
 let brush = document.getElementById("brush");
 let fill = document.getElementById("fill");
@@ -116,17 +169,12 @@ let shapeTool_shapes = document.getElementById("shapetool_shapes");
 
 let canvas = document.getElementById("canvas");
 
-// function findCircle(center,pointer){
-//     for(let i=center[0]-pointer[0]; i<center[0]+pointer; i++){
-//         console.log(i)
-//     }
-//     return
-// }
 
 let startX = 0;
 let startY = 0;
 let endX = 0;
 let endY = 0;
+
 canvas.addEventListener("mouseover", (e) => {
   if (shapeTool) {
     canvas.style.cursor = "crosshair";
@@ -135,6 +183,7 @@ canvas.addEventListener("mouseover", (e) => {
 
 canvas.addEventListener("mousedown", (e) => {
   if (!shapeTool) return;
+
   let element = document.elementFromPoint(e.clientX, e.clientY);
   if (element.id == "canvas") return;
   [startY, startX] = element.id.split(",").map(Number);
@@ -144,58 +193,66 @@ canvas.addEventListener("drag", (e) => {
   if (!shapeTool) return;
 });
 
-
-//for square
-// canvas.addEventListener("mouseup", (e) => {
-//   if (!shapeTool) return;
-//   let element = document.elementFromPoint(e.clientX, e.clientY);
-//   if (element.id == "canvas") return;
-//   [endY, endX] = element.id.split(",").map(Number);
-//   let selectedColor = clr_elem.value;
-//   //marking top strip
-//   for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
-//     let stripTop = document.getElementById(`${Math.min(startY,endY)},${i}`)
-//     stripTop.style.backgroundColor = selectedColor
-    
-//   }
-
-//   //making the bottom strip
-//   for(let i=Math.min(startX,endX); i<=Math.max(endX,startX);i++){
-//     let stripBottom = document.getElementById(`${Math.max(startY,endY)},${i}`)
-//     stripBottom.style.backgroundColor = selectedColor
-//   }
-
-//   for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
-//     let stripLeft = document.getElementById(`${j},${Math.min(startX,endX)}`)
-//     stripLeft.style.backgroundColor= selectedColor
-//   }
-
-//   for(let j=Math.min(endY,startY); j<Math.max(endY,startY); j++){
-//     let stripLeft = document.getElementById(`${j},${Math.max(startX,endX)}`)
-//     stripLeft.style.backgroundColor= selectedColor
-//   }
-
-// });
-
-
-
 //for circle
 canvas.addEventListener("mouseup", (e) => {
   if (!shapeTool) return;
   let element = document.elementFromPoint(e.clientX, e.clientY);
   if (element.id == "canvas") return;
   [endY, endX] = element.id.split(",").map(Number);
-  let circleVerticalMid = Math.max(endY,startY)+Math.min(endY,startY)
-  let circleHorizontalMid = Math.max(endX,startX)+Math.min(endX,startX)
+  let selectedColor = clr_elem.value;
 
-  let midVertical =Math.floor((circleVerticalMid+1)/2)
-  let midHorizonal = Math.floor((circleHorizontalMid+1)/2)
+  if (selected_shape == "square") {
+    //marking top strip
+    for (let i = Math.min(startX, endX); i <= Math.max(endX, startX); i++) {
+      let stripTop = document.getElementById(`${Math.min(startY, endY)},${i}`);
+      stripTop.style.backgroundColor = selectedColor;
+    }
 
-  console.log('verticalIndex ->',midVertical,'horizontalIndex ->',midHorizonal)
-  console.log("Y axis length ->",Math.max(endY,startY)-Math.min(endY,startY) +1)
-  console.log("X axis length ->",Math.max(endX,startX)-Math.min(endX,startX) +1)
-  let elementRight = document.getElementById(`${midVertical},${Math.min(endX,startX)}`)
-  elementRight.style.backgroundColor='blue'
+    //making the bottom strip
+    for (let i = Math.min(startX, endX); i <= Math.max(endX, startX); i++) {
+      let stripBottom = document.getElementById(
+        `${Math.max(startY, endY)},${i}`
+      );
+      stripBottom.style.backgroundColor = selectedColor;
+    }
+
+    for (let j = Math.min(endY, startY); j < Math.max(endY, startY); j++) {
+      let stripLeft = document.getElementById(`${j},${Math.min(startX, endX)}`);
+      stripLeft.style.backgroundColor = selectedColor;
+    }
+
+    for (let j = Math.min(endY, startY); j < Math.max(endY, startY); j++) {
+      let stripLeft = document.getElementById(`${j},${Math.max(startX, endX)}`);
+      stripLeft.style.backgroundColor = selectedColor;
+    }
+  }
+
+  if (selected_shape == "circle") {
+    function getEllipsePoints(startX, startY, endX, endY, color) {
+      const centerX = Math.round((startX + endX) / 2);
+      const centerY = Math.round((startY + endY) / 2);
+      const radiusX = Math.abs(endX - startX) / 2;
+      const radiusY = Math.abs(endY - startY) / 2;
+
+      for (let i = centerY - radiusY; i <= centerY + radiusY; i++) {
+        for (let j = centerX - radiusX; j <= centerX + radiusX; j++) {
+          let dx = (j - centerX) ** 2 / radiusX ** 2;
+          let dy = (i - centerY) ** 2 / radiusY ** 2;
+          let distance = dx + dy;
+
+          if (Math.abs(distance - 1) < 0.3) {
+            let element = document.getElementById(
+              `${Math.floor(i)},${Math.floor(j)}`
+            );
+            if (element) {
+              element.style.backgroundColor = color;
+            }
+          }
+        }
+      }
+    }
+    getEllipsePoints(startX, startY, endX, endY, selectedColor)
+  }
 });
 
 canvas.addEventListener("click", (e) => {
@@ -207,23 +264,22 @@ canvas.addEventListener("click", (e) => {
   } else if (eraseTool && !paintTool) {
     target.style.backgroundColor = "white";
   } else if (fillTool) {
-    let child = document.getElementById("canvas").children;
+    let csh = Number(previous_height ||grid_height.value);
+    let csw = Number(previous_width || grid_width.value);
     let colorStructure = new Array();
     count = 0;
-
-    for (let i = 0; i < grid_height.value; i++) {
+    let child = document.getElementById("canvas").children;
+    for (let i = 0; i < csh; i++) {
       colorStructure.push([]);
-      for (let j = 0; j < grid_width.value; j++) {
+      for (let j = 0; j < csw; j++) {
         colorStructure[i][j] = child[count].style.backgroundColor;
         count++;
       }
     }
     console.log(colorStructure);
-    let csh = Number(grid_height.value);
-    let csw = Number(grid_width.value);
+   
     let baseColor = target.style.backgroundColor;
     let [y, x] = target.id.split(",");
-    console.log(baseColor, selectedColor);
     function recursiveFiller(y, x, colorStructure, newColor, originalColor) {
       if (
         y < 0 ||
@@ -232,19 +288,17 @@ canvas.addEventListener("click", (e) => {
         x >= colorStructure[0].length ||
         colorStructure[y][x] !== originalColor
       ) {
-        return; // Stop if out of bounds or wrong color
+        return;
       }
-
-      // 2. Fill the current cell (NOW that we know it's valid)
       colorStructure[y][x] = newColor;
-      recursiveFiller(y - 1, x, colorStructure, newColor, originalColor); // Up
-      recursiveFiller(y + 1, x, colorStructure, newColor, originalColor); // Down
-      recursiveFiller(y, x - 1, colorStructure, newColor, originalColor); // Left
-      recursiveFiller(y, x + 1, colorStructure, newColor, originalColor); // Right
+      recursiveFiller(y - 1, x, colorStructure, newColor, originalColor);
+      recursiveFiller(y + 1, x, colorStructure, newColor, originalColor);
+      recursiveFiller(y, x - 1, colorStructure, newColor, originalColor);
+      recursiveFiller(y, x + 1, colorStructure, newColor, originalColor);
 
       return;
     }
-    console.log(target.id);
+   
     recursiveFiller(
       Number(y),
       Number(x),
@@ -263,8 +317,6 @@ canvas.addEventListener("click", (e) => {
 });
 
 //fill tool
-
-console.log(paintTool, fillTool, eraseTool, saveTool, shapeTool);
 
 //handling tollbar events
 
@@ -338,18 +390,32 @@ erase.addEventListener("click", () => {
   resetTool();
   eraseTool = true;
 });
+let shape_circle = document.getElementById("shape_circle");
+let shape_square = document.getElementById("shape_square");
+let selected_shape = "";
+squareshape.addEventListener("click", () => {
+  selected_shape = "square";
+  shapeTool_shapes.classList.remove("shape-active");
+});
+circleshape.addEventListener("click", () => {
+  selected_shape = "circle";
+  shapeTool_shapes.classList.remove("shape-active");
+});
 
 shaped.addEventListener("click", () => {
   resetButtons();
+  shapeTool_shapes.classList.remove("shape-deactive")
   shapeTool_shapes.classList.add("shape-active");
   shaped.classList.add("toolbar-icons-selected");
   resetTool();
   shapeTool = true;
+  selected_shape = "circle";
+  let element = document.getElementById('circle')
+  if(element){
+    element.style.backgroundColor = 'blue'
+  }
+      
 });
-
-let shape_circle = document.getElementById("shape_circle");
-let shape_square = document.getElementById("shape_square");
-let selected_shape = "";
 
 shape_circle.addEventListener("click", (e) => {
   if ((selected_shape = "square" || !selected_shape)) {
@@ -382,6 +448,17 @@ save.addEventListener("click", () => {
   save.classList.add("toolbar-icons-selected");
   resetTool();
   saveTool = true;
+  let colorStructure = new Array();
+    count = 0;
+    let child = document.getElementById("canvas").children;
+    for (let i = 0; i < grid_height.value; i++) {
+      colorStructure.push([]);
+      for (let j = 0; j < grid_width.value; j++) {
+        colorStructure[i][j] = child[count].style.backgroundColor;
+        count++;
+      }
+    }
+  document.cookie=`data=${JSON.stringify(colorStructure)}`
 });
 
 //canvas

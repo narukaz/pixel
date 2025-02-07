@@ -133,30 +133,36 @@ background-color: #d3d9dc;
 }
 
 .create-button{
-    width:100%;
-    height: 100%;
-    background-color: rgb(255, 161, 9);
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    
+    width: 200px;
+    height: 250px;
+    display: grid;
+    padding: 10px;
+    grid-template-rows: 1fr,1fr;
+    grid-template-columns: 1fr ;
+    gap: 5px;
 }
-.create-button:hover{
+.create-button button:first-child {
+    background-color: rgb(255, 193, 36);
+    color: rgb(16, 15, 15);
+    border-radius: 20px ;
+    font:bold;
+    font-size: 20px;
+}
+
+.create-button button:last-child {
+    background-color: lightblue;
+    color: black;
+    border-radius: 20px ;
+    font:bold;
+    font-size: 20px;
+}
+
+.create-button button:hover{
     
-    border: 1px solid black;
+    border: 1px solid rgb(15, 43, 255);
     
 }
 
-.create-button>button{
-   background-color: transparent;
-   border: 0;
-   color: white;
-   font-weight: bold;
-   font-size: 20px;
-    
-}
 
 .slider-wrapper{
     display: flex;
@@ -164,7 +170,9 @@ background-color: #d3d9dc;
     gap: 12px;
     padding-right: 20px;
 }
-
+.load-previous{
+    width: 100px;
+}
 .slider{
     display: flex;
     justify-content: flex-start;
@@ -247,12 +255,13 @@ input[type="color"]:hover {
   }
 
   
-.dialog-cornered{
-
-}
 
 
 .canvas{
     width: auto;
     height: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50% ,-50%);
 }
